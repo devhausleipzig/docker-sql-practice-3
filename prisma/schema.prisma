@@ -11,16 +11,16 @@ datasource db {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  viewCount Int      @default(0)
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  viewCount Int       @default(0)
   author    String
-  email     String
   title     String
   content   String
   image     String
   tags      String[]
+  reactions Emoji[]
   comments  Comment[]
 }
 
@@ -33,4 +33,9 @@ model Comment {
   content   String
   post      Post     @relation(fields: [postId], references: [id])
   postId    Int
+}
+
+model Emoji {
+  id       Int  @id @default(autoincrement())
+  document Post @relation(fields: [], references: [id])
 }
