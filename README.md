@@ -1,9 +1,8 @@
 # Docker & SQL Practice #3
 
-
 ## Prerequisites
 
-Creat `.env` file and add to it:
+Create `.env` file and add to it:
 
 ```sh
 POSTGRES_USER=local_admin

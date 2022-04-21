@@ -117,12 +117,10 @@ app.get(`/post/:id`, async (req, res) => {
 
   const post = await prisma.post.findUnique({
     where: { id: Number(id) },
-    include: { author: true },
   });
 
   res.json(post);
 });
-
 app.get("/feed", async (req, res) => {
   const { searchString, skip, take, orderBy } = req.query;
 
