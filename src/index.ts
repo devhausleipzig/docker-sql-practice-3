@@ -14,7 +14,7 @@ app.post(`/posts`, async (req, res) => {
       user,
       title,
       content,
-     image: {
+      image: {
         create: image,
       },
       tags,
@@ -90,18 +90,15 @@ app.delete("/user/:id", async (req, res) => {
     res.json("Success");
   } catch (err) {
     res.json({ error: `User could not be deleted` });
-
-
   }
- 
 });
 
 app.get("/user/:id/post", async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const posts = await prisma.post.findMany({
-    where:{
-      userId: Number(id)
-    }
+    where: {
+      userId: Number(id),
+    },
     include: { image: true },
   });
   res.json(posts);
@@ -158,8 +155,6 @@ app.put("/post/:id/views", async (req, res) => {
     res.json({ error: `Post with ID ${id} does not exist in the database` });
   }
 });
-
-
 
 app.get("/post/:post_id/comment/", async (req, res) => {
   const { post_id } = req.params;

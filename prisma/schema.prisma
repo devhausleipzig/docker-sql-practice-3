@@ -26,7 +26,6 @@ model Post {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   viewCount Int       @default(0)
-  author    String
   title     String
   content   String
   image     Image?
