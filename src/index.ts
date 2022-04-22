@@ -26,21 +26,25 @@ app.post(`/posts`, async (req, res) => {
 
 app.post(`/user/:id/posts`, async (req, res) => {
   const { id } = req.params;
-  const { title, content, image, tags, comments } = req.body;
+  const { title, content, tags, comments, image } = req.body;
   try {
     const result = await prisma.post.create({
       data: {
         user: { connect: { id: Number(id) } },
         title,
         content,
-        image,
+        image: {
+          create: {
+            ...image,
+          },
+        },
         tags,
         comments,
       },
     });
     res.json(result);
   } catch (err) {
-    res.json("Something went wrong");
+    res.json(err);
   }
 });
 
@@ -118,7 +122,7 @@ app.put("/post/:id", async (req, res) => {
         },
       },
     });
-    res.json("updated3");
+    res.json("Success");
   } catch (error) {
     console.log(error);
   }
@@ -165,6 +169,11 @@ app.get("/post/:post_id/comment/", async (req, res) => {
   });
 
   res.json(comments);
+});
+
+app.get("/user", async (req, res) => {
+  const result = await prisma.user.findMany();
+  res.json(result);
 });
 
 const server = app.listen(8000, () =>
