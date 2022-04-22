@@ -17,7 +17,9 @@ app.post(`/user/:id/posts`, async (req, res) => {
         user: { connect: { id: Number(id) } },
         title,
         content,
-        image,
+        image: {
+          create: image,
+        },
         tags,
       },
     });
@@ -89,7 +91,49 @@ app.put(`/user/:id`, async (req, res) => {
   }
 });
 
-app.put("/posts/:id/views", async (req, res) => {
+app.get("/posts/", async (req, res) => {
+  const posts = await prisma.post.findMany({
+    include: { image: true },
+  });
+
+  res.json(posts);
+});
+
+app.put("/post/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const post = await prisma.post.update({
+      where: { id: Number(id) },
+      data: {
+        ...req.body,
+        image: {
+          update: {
+            ...req.body.image,
+          },
+        },
+      },
+    });
+    res.json("updated3");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.delete("/post/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const post = await prisma.post.delete({
+      where: { id: Number(id) },
+    });
+    res.json("deleted");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.put("/post/:id/views", async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -107,62 +151,60 @@ app.put("/posts/:id/views", async (req, res) => {
     res.json({ error: `Post with ID ${id} does not exist in the database` });
   }
 });
-app.get("/posts/", async (req, res) => {
-  const posts = await prisma.post.findMany({});
-
-  res.json(posts);
-});
 
 // app.put(`/post/:post_id/reactions/`, async (req, res) => {
-//     const { post_id } = req.params;
-//     const { reactions } = req.body
+//   const { post_id } = req.params;
+//   const { reactions } = req.body;
 
-//     const result = await prisma.post.update({
-//         where: {
-//             id: Number(post_id)
-//         },
-//         data: {
-//             reactions: {
-//                 connectOrCreate: reactions.map( (emojiObj: {character: string, number: number}) => {
-//                 return {
-//                     where: {
-//                         emoji: { connect: { character: emojiObj.character } },
-//                         number: { increment: 1 }
-//                     },
-//                     create: {
-//                         postId: Number(post_id),
-//                         emoji: {
-//                             connectOrCreate: {
-//                                 where: { character: emojiObj.character },
-//                                 create: { character: emojiObj.character }
-//                             }
-//                         }
-//                     },
-//                 }
-//             })}
-//         },
-// //     })
+//   const result = await prisma.post.update({
+//     where: {
+//       id: Number(post_id),
+//     },
+//     data: {
+//       reactions: {
+//         connectOrCreate: reactions.map(
+//           (emojiObj: { character: string; number: number }) => {
+//             return {
+//               where: {
+//                 emoji: { connect: { character: emojiObj.character } },
+//                 number: { increment: 1 },
+//               },
+//               create: {
+//                 postId: Number(post_id),
+//                 emoji: {
+//                   connectOrCreate: {
+//                     where: { character: emojiObj.character },
+//                     create: { character: emojiObj.character },
+//                   },
+//                 },
+//               },
+//             };
+//           }
+//         ),
+//       },
+//     },
+//   });
 
-//     res.json(result)
-// })
+//   res.json(result);
+// });
 
-app.post(`/posts/:post_id/comment/`, async (req, res) => {
-  const { post_id } = req.params;
-  const { author, email, content } = req.body;
+// app.post(`/post/:post_id/comment/`, async (req, res) => {
+//   const { post_id } = req.params;
+//   const { author, email, content } = req.body;
 
-  const result = await prisma.comment.create({
-    data: {
-      author,
-      email,
-      content,
-      post: { connect: { id: Number(post_id) } },
-    },
-  });
+//   const result = await prisma.comment.create({
+//     data: {
+//       author,
+//       email,
+//       content,
+//       post: { connect: { id: Number(post_id) } },
+//     },
+//   });
 
-  res.json(result);
-});
+//   res.json(result);
+// });
 
-app.get("/posts/:post_id/comment/", async (req, res) => {
+app.get("/post/:post_id/comment/", async (req, res) => {
   const { post_id } = req.params;
   const comments = await prisma.comment.findMany({
     where: {

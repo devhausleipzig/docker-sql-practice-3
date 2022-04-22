@@ -38,13 +38,11 @@ model Post {
   viewCount Int      @default(0)
   title     String
   content   String
-  image     String
+  image     Image?
   tags      String[]
   comments  Comment[]
   user User @relation(fields: [userId], references: [id])
   userId Int
-  image Image @relation(fields: [imageId], references: [id])
-  imageId Int
   // reactions EmojiPost[]
 }
 
@@ -59,6 +57,7 @@ model Comment {
   postId    Int
   // reactions EmojiComment[]
 }
+
 
 // model EmojiComment {
 //   number      Int       @default(0)
@@ -86,3 +85,7 @@ model Comment {
 //   posts       EmojiPost[]
 //   comments    EmojiComment[]
 // }
+
+// image
+// location + alt text
+// adjust the end point for blogpost
