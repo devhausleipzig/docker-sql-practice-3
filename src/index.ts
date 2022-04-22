@@ -6,34 +6,18 @@ const app = express();
 
 app.use(express.json());
 
-app.post(`/signup`, async (req, res) => {
-  const { name, email, posts } = req.body;
-
-  const postData = posts?.map((post: Prisma.PostCreateInput) => {
-    return { title: post?.title, content: post?.content };
-  });
-
-  const result = await prisma.user.create({
-    data: {
-      name,
-      email,
-      posts: {
-        create: postData,
-      },
-    },
-  });
-
-  res.json(result);
-});
-
 app.post(`/post`, async (req, res) => {
-  const { title, content, authorEmail, image } = req.body;
+  const { title, content, author, image, tags, email, comments } = req.body;
+  console.log("test");
   const result = await prisma.post.create({
     data: {
+      author,
+      email,
       title,
       content,
       image,
-      author: { connect: { email: authorEmail } },
+      tags,
+      comments,
     },
   });
 
@@ -59,27 +43,6 @@ app.put("/post/:id/views", async (req, res) => {
   }
 });
 
-app.put("/publish/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const postData = await prisma.post.findUnique({
-      where: { id: Number(id) },
-      select: {
-        published: true,
-      },
-    });
-
-    const updatedPost = await prisma.post.update({
-      where: { id: Number(id) || undefined },
-      data: { published: !postData?.published },
-    });
-    res.json(updatedPost);
-  } catch (error) {
-    res.json({ error: `Post with ID ${id} does not exist in the database` });
-  }
-});
-
 app.delete(`/post/:id`, async (req, res) => {
   const { id } = req.params;
   const post = await prisma.post.delete({
@@ -89,27 +52,6 @@ app.delete(`/post/:id`, async (req, res) => {
   });
 
   res.json(post);
-});
-
-app.get("/users", async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
-
-app.get("/user/:id/drafts", async (req, res) => {
-  const { id } = req.params;
-
-  const drafts = await prisma.user
-    .findUnique({
-      where: {
-        id: Number(id),
-      },
-    })
-    .posts({
-      where: { published: false },
-    });
-
-  res.json(drafts);
 });
 
 app.get(`/post/:id`, async (req, res) => {
@@ -133,18 +75,7 @@ app.get("/feed", async (req, res) => {
       }
     : {};
 
-  const posts = await prisma.post.findMany({
-    where: {
-      published: true,
-      ...or,
-    },
-    include: { author: true },
-    take: Number(take) || undefined,
-    skip: Number(skip) || undefined,
-    orderBy: {
-      updatedAt: orderBy as Prisma.SortOrder,
-    },
-  });
+  const posts = await prisma.post.findMany({});
 
   res.json(posts);
 });
