@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import express from "express";
+import { connect } from "http2";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -13,7 +14,9 @@ app.post(`/posts`, async (req, res) => {
       user,
       title,
       content,
-      image,
+     image: {
+        create: image,
+      },
       tags,
       comments,
     },
@@ -87,6 +90,53 @@ app.delete("/user/:id", async (req, res) => {
     res.json("Success");
   } catch (err) {
     res.json({ error: `User could not be deleted` });
+
+
+  }
+ 
+});
+
+app.get("/user/:id/post", async (req, res) => {
+  const {id} = req.params;
+  const posts = await prisma.post.findMany({
+    where:{
+      userId: Number(id)
+    }
+    include: { image: true },
+  });
+  res.json(posts);
+});
+
+app.put("/post/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await prisma.post.update({
+      where: { id: Number(id) },
+      data: {
+        ...req.body,
+        image: {
+          update: {
+            ...req.body.image,
+          },
+        },
+      },
+    });
+    res.json("updated3");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.delete("/post/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const post = await prisma.post.delete({
+      where: { id: Number(id) },
+    });
+    res.json("deleted");
+  } catch (error) {
+    console.log(error);
   }
 });
 
@@ -109,41 +159,17 @@ app.put("/post/:id/views", async (req, res) => {
   }
 });
 
-app.delete(`/post/:id`, async (req, res) => {
-  const { id } = req.params;
-  const post = await prisma.post.delete({
+
+
+app.get("/post/:post_id/comment/", async (req, res) => {
+  const { post_id } = req.params;
+  const comments = await prisma.comment.findMany({
     where: {
-      id: Number(id),
+      postId: Number(post_id),
     },
   });
 
-  res.json(post);
-});
-
-app.get(`/post/:id`, async (req, res) => {
-  const { id }: { id?: string } = req.params;
-
-  const post = await prisma.post.findUnique({
-    where: { id: Number(id) },
-  });
-
-  res.json(post);
-});
-app.get("/feed", async (req, res) => {
-  const { searchString, skip, take, orderBy } = req.query;
-
-  const or: Prisma.PostWhereInput = searchString
-    ? {
-        OR: [
-          { title: { contains: searchString as string } },
-          { content: { contains: searchString as string } },
-        ],
-      }
-    : {};
-
-  const posts = await prisma.post.findMany({});
-
-  res.json(posts);
+  res.json(comments);
 });
 
 const server = app.listen(8000, () =>

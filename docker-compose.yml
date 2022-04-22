@@ -12,6 +12,7 @@ services:
     image: bitnami/postgresql:latest
     restart: unless-stopped
     container_name: pgsql-example-3
+    # in production, would remove this mapping to prevent access to DB from outside
     ports:
       - "5432:5432"
     env_file:
@@ -33,7 +34,14 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+    # overwrite to correct URL for internal network; only necesary because of hack to allow externally running migrate/seed
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@pgsql:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public&connect_timeout=300
     depends_on:
       - pgsql
+    volumes:
+      - type: bind
+        source: ./prisma
+        target: /prisma
     networks:
       - backend-tier
