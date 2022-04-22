@@ -6,13 +6,11 @@ const app = express();
 
 app.use(express.json());
 
-app.post(`/post`, async (req, res) => {
-  const { title, content, author, image, tags, email, comments } = req.body;
-  console.log("test");
+app.post(`/posts`, async (req, res) => {
+  const { title, content, image, tags, comments, user } = req.body;
   const result = await prisma.post.create({
     data: {
-      author,
-      email,
+      user,
       title,
       content,
       image,
@@ -20,8 +18,76 @@ app.post(`/post`, async (req, res) => {
       comments,
     },
   });
-
   res.json(result);
+});
+
+app.post(`/user/:id/posts`, async (req, res) => {
+  const { id } = req.params;
+  const { title, content, image, tags, comments } = req.body;
+  try {
+    const result = await prisma.post.create({
+      data: {
+        user: { connect: { id: Number(id) } },
+        title,
+        content,
+        image,
+        tags,
+        comments,
+      },
+    });
+    res.json(result);
+  } catch (err) {
+    res.json("Something went wrong");
+  }
+});
+
+app.post(`/user`, async (req, res) => {
+  const { userName, email, passwordHash, pwSalt } = req.body;
+  try {
+    const result = await prisma.user.create({
+      data: {
+        userName,
+        email,
+        passwordHash,
+        pwSalt,
+      },
+    });
+    res.json(result);
+  } catch (err) {
+    res.json({ error: `Something went wrong` });
+  }
+});
+
+app.put(`/user/:id`, async (req, res) => {
+  const { id } = req.params;
+  const { userName, email, passwordHash } = req.body;
+  try {
+    const result = await prisma.user.update({
+      data: {
+        ...req.body,
+      },
+      where: {
+        id: Number(id),
+      },
+    });
+    res.json(result);
+  } catch (err) {
+    res.json({ error: `User with ID ${id} does not exist in the database` });
+  }
+});
+
+app.delete("/user/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await prisma.user.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+    res.json("Success");
+  } catch (err) {
+    res.json({ error: `User could not be deleted` });
+  }
 });
 
 app.put("/post/:id/views", async (req, res) => {
