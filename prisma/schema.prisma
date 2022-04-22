@@ -11,54 +11,54 @@ datasource db {
 }
 
 model Post {
-  id        Int         @id @default(autoincrement())
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  viewCount Int         @default(0)
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  viewCount Int       @default(0)
   author    String
   title     String
   content   String
   image     String
   tags      String[]
-  reactions EmojiPost[]
   comments  Comment[]
+  // reactions EmojiPost[]
 }
 
 model Comment {
-  id        Int            @id @default(autoincrement())
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   author    String
   email     String
   content   String
-  post      Post           @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
   postId    Int
-  reactions EmojiComment[]
+  // reactions EmojiComment[]
 }
 
-model EmojiComment {
-  number    Int
-  comment   Comment @relation(fields: [commentId], references: [id])
-  commentId Int
-  emoji     Emoji   @relation(fields: [emojiId], references: [id])
-  emojiId   Int
+// model EmojiComment {
+//   number      Int       @default(0)
+//   comment     Comment   @relation(fields: [commentId], references: [id])
+//   commentId   Int
+//   emoji       Emoji     @relation(fields: [emojiId], references: [id])
+//   emojiId     Int
 
-  @@id([commentId, emojiId])
-}
+//   @@id([commentId, emojiId])
+// }
 
-model EmojiPost {
-  number  Int
-  post    Post  @relation(fields: [postId], references: [id])
-  postId  Int
-  emoji   Emoji @relation(fields: [emojiId], references: [id])
-  emojiId Int
+// model EmojiPost {
+//   number     Int      @default(0)
+//   post       Post     @relation(fields: [postId], references: [id])
+//   postId     Int
+//   emoji      Emoji    @relation(fields: [emojiId], references: [id])
+//   emojiId    Int
 
-  @@id([postId, emojiId])
-}
+//   @@id([postId, emojiId])
+// }
 
-model Emoji {
-  id        Int            @id @default(autoincrement())
-  character String
-  posts     EmojiPost[]
-  comments  EmojiComment[]
-}
+// model Emoji {
+//   id          Int           @id @default(autoincrement())
+//   character   String        @unique
+//   posts       EmojiPost[]
+//   comments    EmojiComment[]
+// }
