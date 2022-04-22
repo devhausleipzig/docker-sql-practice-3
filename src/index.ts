@@ -7,7 +7,18 @@ const app = express();
 app.use(express.json());
 
 app.post(`/post/`, async (req, res) => {
-  const { author, title, content, image, tags } = req.body;
+  const { author, title, content, image, tags, reactions } = req.body;
+
+  const result = await prisma.post.create({
+    data: {
+      author,
+      title,
+      content,
+      image,
+      tags,
+      reactions,
+    },
+  });
 
   const result = await prisma.post.create({
     data: {
