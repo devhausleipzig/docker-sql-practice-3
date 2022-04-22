@@ -18,7 +18,7 @@ model Post {
   author    String
   title     String
   content   String
-  image     String
+  image     Image?
   tags      String[]
   comments  Comment[]
   // reactions EmojiPost[]
@@ -34,6 +34,14 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
   postId    Int
   // reactions EmojiComment[]
+}
+
+model Image {
+  id       Int    @id @default(autoincrement())
+  alt      String
+  location String
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   Int    @unique
 }
 
 // model EmojiComment {
@@ -62,3 +70,7 @@ model Comment {
 //   posts       EmojiPost[]
 //   comments    EmojiComment[]
 // }
+
+// image
+// location + alt text
+// adjust the end point for blogpost
